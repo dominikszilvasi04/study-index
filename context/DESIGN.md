@@ -282,7 +282,7 @@ Suggested fields:
 - `created_at`
 - `updated_at`
 
-### 9.2 LibraryRoot
+### 9.2 LinkedFolder
 
 Represents a user-approved directory associated with a module.
 
@@ -304,7 +304,7 @@ Represents an indexed file. It is not the file itself.
 Suggested fields:
 
 - `id`: stable UUID
-- `library_root_id`
+- `linked_folder_id`
 - `relative_path`
 - `filename`
 - `extension`
@@ -316,7 +316,7 @@ Suggested fields:
 - `indexed_at`
 - `available`
 
-The unique identity inside a root should initially be `library_root_id + relative_path`. Rename detection may later use filesystem identity or hashes, but should not complicate the first release.
+The unique identity inside a root should initially be `linked_folder_id + relative_path`. Rename detection may later use filesystem identity or hashes, but should not complicate the first release.
 
 ### 9.4 Task
 

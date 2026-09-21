@@ -27,8 +27,10 @@
 - Point PyInstaller at `app.py`.
 - Treat `app.py` as the composition root. It creates `QApplication`, creates the main window, shows it and starts the event loop.
 - Keep `study_index/main_window.py` as the application shell. It registers top-level pages and window-wide components but does not implement feature-specific interfaces.
-- Put the first module interface and its immediate widget behaviour in `../study_index/modules/modules_page.py`.
-- Prefer explicit named component attributes such as `self.modules_page` and `self.add_module_button` where they make the object structure easy to inspect.
+- Keep module-specific code in `study_index/modules/`, using readable filenames such as `models.py`, `module_database.py`, `module_list_page.py` and `module_workspace_page.py`.
+- Keep linked-folder persistence in `ModuleDatabase` while folders exist only as part of a module workflow.
+- Use `StudyIndexWindow` to switch between the module list and a module workspace.
+- Prefer explicit named component attributes such as `self.module_list_page` and `self.add_module_button` where they make the object structure easy to inspect.
 - Create classes for cohesive pages or reusable components, not placeholder classes for individual labels, buttons or dependencies that have no behaviour yet.
 - Keep `study_index/__init__.py` empty. It marks the application package but must not trigger startup or perform registration through import side effects.
 - Do not create controller, service, repository or database modules until those responsibilities exist in working code.

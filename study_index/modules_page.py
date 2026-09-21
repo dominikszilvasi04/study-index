@@ -3,10 +3,13 @@ from PySide6.QtWidgets import (QInputDialog, QLabel, QListWidget, QMessageBox,
 
 
 class ModulesPage(QWidget):
-    def __init__(self):
+    def __init__(self, module_repository):
         super().__init__()
+        self.module_repository = module_repository
         self.empty_message = QLabel("No Modules Available")
         self.modules_list = QListWidget()
+        self.modules_list.addItems(self.module_repository.names())
+        self.empty_message.setVisible(self.modules_list.count() == 0)
         self.add_module_button = QPushButton("Add Module")
         self.page_layout = QVBoxLayout()
         self.page_layout.addWidget(self.empty_message)
@@ -21,7 +24,10 @@ class ModulesPage(QWidget):
             return
         module_name = module_name.strip()
         if not module_name:
-            QMessageBox.warning(self, "Warning", "Module name cannot be empty")
+            QMessageBox.warning(self,"Warning","Module name cannot be empty")
+            return
+        if not self.module_repository.add(module_name):
+            QMessageBox.warning(self,"Warning","Module name already exists")
             return
         self.modules_list.addItem(module_name)
         self.empty_message.hide()

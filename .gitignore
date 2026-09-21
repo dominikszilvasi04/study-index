@@ -1,0 +1,33 @@
+# Private project context
+context/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Environments and local configuration
+.conda/
+.venv/
+.env
+.env.*
+
+# Tests and tooling
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Build and release output
+build/
+dist/
+
+# Editors
+.idea/
+.vscode/
+
+# Operating systems
+.DS_Store
+Thumbs.db
+Desktop.ini

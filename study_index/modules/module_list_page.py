@@ -1,14 +1,15 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (QInputDialog, QLabel, QListWidget, QListWidgetItem,
                                QMessageBox, QPushButton, QVBoxLayout, QWidget)
+from study_index.modules.models import Module
 
-from study_index.modules.modules_model import Module
 
+class ModuleListPage(QWidget):
+    module_open_requested = Signal(object)
 
-class ModulesPage(QWidget):
-    def __init__(self, module_repository):
+    def __init__(self, module_database):
         super().__init__()
-        self.module_repository = module_repository
+        self.module_database = module_database
         self.create_widgets()
         self.create_layout()
         self.connect_signals()
@@ -18,8 +19,10 @@ class ModulesPage(QWidget):
         self.empty_message = QLabel("No Modules Available")
         self.modules_list = QListWidget()
         self.add_module_button = QPushButton("Add Module")
+        self.open_module_button = QPushButton("Open Module")
         self.edit_module_button = QPushButton("Edit Module")
         self.delete_module_button = QPushButton("Delete Module")
+        self.open_module_button.setEnabled(False)
         self.edit_module_button.setEnabled(False)
         self.delete_module_button.setEnabled(False)
 
@@ -28,18 +31,20 @@ class ModulesPage(QWidget):
         page_layout.addWidget(self.empty_message)
         page_layout.addWidget(self.modules_list)
         page_layout.addWidget(self.add_module_button)
+        page_layout.addWidget(self.open_module_button)
         page_layout.addWidget(self.edit_module_button)
         page_layout.addWidget(self.delete_module_button)
         self.setLayout(page_layout)
 
     def connect_signals(self) -> None:
         self.add_module_button.clicked.connect(self.add_module)
+        self.open_module_button.clicked.connect(self.request_module_open)
         self.edit_module_button.clicked.connect(self.edit_module)
         self.delete_module_button.clicked.connect(self.delete_module)
         self.modules_list.currentItemChanged.connect(self.module_selection_changed)
 
     def load_modules(self) -> None:
-        for module in self.module_repository.all():
+        for module in self.module_database.get_modules():
             self.add_module_item(module)
         self.empty_message.setVisible(self.modules_list.count() == 0)
 
@@ -56,7 +61,7 @@ class ModulesPage(QWidget):
         if not module_name:
             QMessageBox.warning(self,"Warning","Module name cannot be empty")
             return
-        module = self.module_repository.add(module_name)
+        module = self.module_database.add_module(module_name)
         if module is None:
             QMessageBox.warning(self,"Warning","Module name already exists")
             return
@@ -73,7 +78,7 @@ class ModulesPage(QWidget):
             QMessageBox.warning(self,"Warning","Module name cannot be empty")
             return
         module_id = item.data(Qt.ItemDataRole.UserRole)
-        if not self.module_repository.update(module_id, module_name):
+        if not self.module_database.rename_module(module_id, module_name):
             QMessageBox.warning(self,"Warning","Module name already exists")
             return
         item.setText(module_name)
@@ -84,12 +89,18 @@ class ModulesPage(QWidget):
         if answer != QMessageBox.StandardButton.Yes:
             return
         module_id = item.data(Qt.ItemDataRole.UserRole)
-        if not self.module_repository.delete(module_id):
+        if not self.module_database.delete_module(module_id):
             return
         self.modules_list.takeItem(self.modules_list.row(item))
         self.empty_message.setVisible(self.modules_list.count() == 0)
 
     def module_selection_changed(self, current_item) -> None:
         module_selected = current_item is not None
+        self.open_module_button.setEnabled(module_selected)
         self.edit_module_button.setEnabled(module_selected)
         self.delete_module_button.setEnabled(module_selected)
+
+    def request_module_open(self) -> None:
+        item = self.modules_list.currentItem()
+        module_id = item.data(Qt.ItemDataRole.UserRole)
+        self.module_open_requested.emit(Module(module_id, item.text()))

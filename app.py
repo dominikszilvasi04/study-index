@@ -2,7 +2,7 @@ import sys
 from PySide6.QtWidgets import QApplication
 from study_index.config import database_path
 from study_index.main_window import StudyIndexWindow
-from study_index.modules.modules_repository import ModuleRepository
+from study_index.modules.module_database import ModuleDatabase
 
 def main():
     application = QApplication(sys.argv)
@@ -11,10 +11,10 @@ def main():
     module_database_path = database_path()
     module_database_path.parent.mkdir(parents=True, exist_ok=True)
 
-    module_repository = ModuleRepository(module_database_path)
-    application.aboutToQuit.connect(module_repository.close)
+    module_database = ModuleDatabase(module_database_path)
+    application.aboutToQuit.connect(module_database.close)
 
-    window = StudyIndexWindow(module_repository)
+    window = StudyIndexWindow(module_database)
     window.show()
     return application.exec()
 

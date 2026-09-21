@@ -1,0 +1,2 @@
+[flake8]
+select = E9,F,W292

@@ -1,0 +1,12 @@
+name: study_index
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.12
+  - pyside6
+  - pyinstaller
+  - pytest
+  - pytest-qt
+  - flake8

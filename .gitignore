@@ -1,6 +1,3 @@
-# Private project context
-#context/
-
 # Python
 __pycache__/
 *.py[cod]

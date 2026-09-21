@@ -2,7 +2,7 @@ import sys
 from PySide6.QtWidgets import QApplication
 from study_index.config import database_path
 from study_index.main_window import StudyIndexWindow
-from study_index.module_repository import ModuleRepository
+from study_index.modules.modules_repository import ModuleRepository
 
 def main():
     application = QApplication(sys.argv)

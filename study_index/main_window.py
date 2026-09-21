@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QMainWindow
-from study_index.modules_page import ModulesPage
+from study_index.modules.modules_page import ModulesPage
 
 
 class StudyIndexWindow(QMainWindow):

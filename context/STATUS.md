@@ -18,7 +18,7 @@ Last updated: 21 September 2026
 - The Conda environment was created successfully.
 - A root `app.py` contains the first PySide6 application shell and launches successfully.
 - `StudyIndexWindow` is separated into `study_index/main_window.py`.
-- The module interface is separated into `study_index/modules_page.py`.
+- The module interface is separated into `../study_index/modules/modules_page.py`.
 - The current source needs a final Flake8 formatting pass: top-level declarations need two blank lines and wrapped calls must use the agreed visual indentation.
 - The initial application entry point will be the root file `app.py`.
 - The planned run command is `python app.py`.

@@ -12,3 +12,12 @@ class LinkedFolder:
     id: int
     module_id: int
     path: str
+
+
+@dataclass(frozen=True)
+class FileMetadata:
+    full_path: str
+    file_name: str
+    extension: str
+    size_bytes: int
+    modified_timestamp: float

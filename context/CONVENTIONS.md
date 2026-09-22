@@ -25,6 +25,9 @@ module_name, accepted = QInputDialog.getText(self,
                                              "Module name:")
 ```
 
+- Keep declarations and calls on one line while they remain readable. Wrap only when the line becomes too long.
+- Keep short function bodies continuous. Do not add blank lines merely to separate setup, action and assertion; use them only when a longer function has genuinely distinct sections.
+
 ## Implementation
 
 - Prefer the simplest implementation that fully solves the current problem.

@@ -4,11 +4,11 @@ Last updated: 22 September 2026
 
 ## Repository
 
-- Local path: `C:\Users\domin\Desktop\StudyIndex`
+- Local path: `C:\Users\Dominik\Desktop\study-index`
 - Remote: `https://github.com/dominikszilvasi04/study-index`
 - Branch: `main`
-- Local and remote `main` are at `41a4a99 update project context`.
-- The working tree contains the in-progress resource scanning and workspace reorganisation.
+- Local `main` is at `6cb9dce fix some linting errors, add utility methods for modules package, add minimal test`, one commit ahead of remote `main`.
+- The working tree adds comprehensive automated tests and coverage enforcement.
 - The `context/` directory is tracked by Git so project reasoning and continuity are shared with contributors.
 
 ## Application
@@ -26,11 +26,13 @@ Last updated: 22 September 2026
 - Reusable file-size and timestamp formatting lives in `study_index/formatters.py`.
 - The initial application entry point will be the root file `app.py`.
 - The planned run command is `python app.py`.
-- The initial Conda environment includes Python 3.12, PySide6, PyInstaller, pytest, pytest-qt and Flake8.
-- Conda is not on the shell `PATH`, but its executable at `C:\Users\domin\anaconda3\Scripts\conda.exe` can run project checks.
-- The environment's direct Python executable at `C:\Users\domin\anaconda3\envs\study_index\python.exe` can run Pytest and Flake8 without relying on `conda run`.
+- The initial Conda environment includes Python 3.12, PySide6, PyInstaller, pytest, pytest-cov, pytest-qt and Flake8.
+- The test suite contains 26 tests covering persistence, file discovery, formatting, configuration, widgets, navigation and application composition.
+- Running Pytest enforces 100% line coverage over `study_index` and `app.py`.
+- Conda is not on the shell `PATH`, but its executable at `C:\Users\Dominik\anaconda3\Scripts\conda.exe` can run project checks.
+- The environment's direct Python executable at `C:\Users\Dominik\anaconda3\envs\study_index\python.exe` can run Pytest and Flake8 without relying on `conda run`.
 - The owner's installed Conda requires `conda env create` to parse `environment.yml`; plain `conda create --file` treated it as a package specification.
 
 ## Immediate Next Step
 
-Manually verify the resource list with empty, populated and unavailable linked folders before adding scanner tests.
+Manually verify unavailable linked-folder behaviour, then make scan failures recoverable without hiding them or preventing other linked folders from loading.

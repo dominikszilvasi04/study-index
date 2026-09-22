@@ -8,5 +8,6 @@ dependencies:
   - pyside6
   - pyinstaller
   - pytest
+  - pytest-cov
   - pytest-qt
   - flake8

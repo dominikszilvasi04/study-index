@@ -29,7 +29,7 @@ Last updated: 22 September 2026
 - The initial Conda environment includes Python 3.12, PySide6, PyInstaller, pytest, pytest-cov, pytest-qt and Flake8.
 - The test suite contains 26 tests covering persistence, file discovery, formatting, configuration, widgets, navigation and application composition.
 - Running Pytest enforces 100% line coverage over `study_index` and `app.py`.
-- GitHub Actions runs lint and the complete test suite for every push and pull request, then builds, smoke-tests and uploads native Windows, macOS and Linux bundles.
+- GitHub Actions runs lint and the complete test suite for every push and pull request, then builds, smoke-tests and uploads native Windows and macOS bundles.
 - Conda is not on the shell `PATH`, but its executable at `C:\Users\Dominik\anaconda3\Scripts\conda.exe` can run project checks.
 - The environment's direct Python executable at `C:\Users\Dominik\anaconda3\envs\study_index\python.exe` can run Pytest and Flake8 without relying on `conda run`.
 - The owner's installed Conda requires `conda env create` to parse `environment.yml`; plain `conda create --file` treated it as a package specification.

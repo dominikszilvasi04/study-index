@@ -46,11 +46,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Linux
-            runner: ubuntu-latest
-            artifact: StudyIndex-linux.tar.gz
-            executable: ./dist/StudyIndex/StudyIndex
-            bundle: StudyIndex
           - name: macOS
             runner: macos-latest
             artifact: StudyIndex-macos.tar.gz
@@ -77,8 +72,8 @@ jobs:
       - name: Build application
         run: python -m PyInstaller --noconfirm --clean --windowed --onedir --name StudyIndex app.py
 
-      - name: Smoke test Linux or macOS bundle
-        if: runner.os != 'Windows'
+      - name: Smoke test macOS bundle
+        if: runner.os == 'macOS'
         env:
           QT_QPA_PLATFORM: offscreen
         run: |
@@ -104,8 +99,8 @@ jobs:
           }
           Stop-Process -Id $process.Id
 
-      - name: Package Linux or macOS bundle
-        if: runner.os != 'Windows'
+      - name: Package macOS bundle
+        if: runner.os == 'macOS'
         run: tar -czf "${{ matrix.artifact }}" -C dist "${{ matrix.bundle }}"
 
       - name: Package Windows bundle

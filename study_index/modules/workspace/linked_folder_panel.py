@@ -19,6 +19,8 @@ class LinkedFolderPanel(QWidget):
         self.add_folder_button = QPushButton("Add Folder")
         self.remove_folder_button = QPushButton("Remove Folder")
         self.remove_folder_button.setEnabled(False)
+        self.locate_folder_button = QPushButton("Locate Folder")
+        self.locate_folder_button.setEnabled(False)
         self.create_layout()
         self.connect_signals()
         self.load_linked_folders()
@@ -30,12 +32,14 @@ class LinkedFolderPanel(QWidget):
         panel_layout.addWidget(self.linked_folders_list)
         panel_layout.addWidget(self.add_folder_button)
         panel_layout.addWidget(self.remove_folder_button)
+        panel_layout.addWidget(self.locate_folder_button)
         self.setLayout(panel_layout)
 
     def connect_signals(self) -> None:
         self.add_folder_button.clicked.connect(self.add_folder)
         self.remove_folder_button.clicked.connect(self.remove_folder)
         self.linked_folders_list.currentItemChanged.connect(self.folder_selection_changed)
+        self.locate_folder_button.clicked.connect(self.locate_folder)
 
     def load_linked_folders(self) -> None:
         for linked_folder in self.module_database.get_linked_folders(self.module.id):
@@ -62,6 +66,18 @@ class LinkedFolderPanel(QWidget):
         self.update_empty_message()
         self.folders_changed.emit()
 
+    def locate_folder(self) -> None:
+        folder_item = self.selected_folder_item()
+        folder_path = QFileDialog.getExistingDirectory(self, "Locate Folder")
+        if not folder_path:
+            return
+        linked_folder_id = folder_item.data(Qt.ItemDataRole.UserRole)
+        if not self.module_database.relocate_linked_folder(linked_folder_id, folder_path):
+            QMessageBox.warning(self, "Locate Folder", "Folder is already linked, or link may no longer exist")
+            return
+        folder_item.setText(folder_path)
+        self.folders_changed.emit()
+
     def remove_folder(self) -> None:
         folder_item = self.selected_folder_item()
         answer = QMessageBox.question(self, "Remove Folder", f'Remove "{folder_item.text()}"?')
@@ -79,9 +95,9 @@ class LinkedFolderPanel(QWidget):
     def update_empty_message(self) -> None:
         self.empty_message.setVisible(self.linked_folders_list.count() == 0)
 
-    def folder_selection_changed(self,
-                                 current_item: QListWidgetItem | None) -> None:
+    def folder_selection_changed(self, current_item: QListWidgetItem | None) -> None:
         self.remove_folder_button.setEnabled(current_item is not None)
+        self.locate_folder_button.setEnabled(current_item is not None)
 
     def selected_folder_item(self) -> QListWidgetItem:
         folder_item = self.linked_folders_list.currentItem()

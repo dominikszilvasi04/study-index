@@ -48,6 +48,12 @@ class ModuleDatabase:
         rows = self.connection.execute("SELECT id, module_id, path FROM linked_folders WHERE module_id = ? ORDER BY path COLLATE NOCASE", (module_id,))
         return [LinkedFolder(row[0], row[1], row[2]) for row in rows]
 
+    def relocate_linked_folder(self, linked_folder_id: int, path: str) -> bool:
+        update_result = self.connection.execute("UPDATE OR IGNORE linked_folders SET path = ? WHERE id = ?",
+                                                (path, linked_folder_id))
+        self.connection.commit()
+        return update_result.rowcount == 1
+
     def remove_linked_folder(self, linked_folder_id: int) -> bool:
         delete_result = self.connection.execute("DELETE FROM linked_folders WHERE id = ?", (linked_folder_id,))
         self.connection.commit()

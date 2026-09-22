@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QMainWindow, QStackedWidget
 from study_index.modules.module_list_page import ModuleListPage
-from study_index.modules.module_workspace_page import ModuleWorkspacePage
+from study_index.modules.workspace.module_workspace_page import ModuleWorkspacePage
 
 
 class StudyIndexWindow(QMainWindow):

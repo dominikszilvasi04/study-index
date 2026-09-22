@@ -23,6 +23,9 @@ class ModuleWorkspacePage(QWidget):
         self.files_table = ModuleFilesTable()
         self.refresh_button = QPushButton("Refresh")
         self.back_button = QPushButton("Back to Modules")
+        self.scan_errors_label = QLabel()
+        self.scan_errors_label.setWordWrap(True)
+        self.scan_errors_label.hide()
         self.create_layout()
         self.connect_signals()
         self.refresh_files()
@@ -33,6 +36,7 @@ class ModuleWorkspacePage(QWidget):
         page_layout.addWidget(self.linked_folder_panel)
         page_layout.addWidget(self.files_label)
         page_layout.addWidget(self.files_table)
+        page_layout.addWidget(self.scan_errors_label)
         page_layout.addWidget(self.refresh_button)
         page_layout.addWidget(self.back_button)
         self.setLayout(page_layout)
@@ -44,9 +48,14 @@ class ModuleWorkspacePage(QWidget):
 
     def refresh_files(self) -> None:
         self.files_table.clear()
-
+        errors = []
         for linked_folder in self.module_database.get_linked_folders(self.module.id):
-            self.load_linked_folder_files(linked_folder)
+            try:
+                self.load_linked_folder_files(linked_folder)
+            except OSError as error:
+                errors.append(f"{linked_folder.path}: {error}")
+        self.scan_errors_label.setText("\n".join(errors))
+        self.scan_errors_label.setVisible(bool(errors))
 
     def load_linked_folder_files(self, linked_folder: LinkedFolder) -> None:
         file_finder = FileFinder(linked_folder.path)

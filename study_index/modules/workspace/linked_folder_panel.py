@@ -1,8 +1,9 @@
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QPoint, Qt, Signal
 from PySide6.QtWidgets import (QFileDialog, QLabel, QListWidget, QListWidgetItem,
-                               QMessageBox, QPushButton, QVBoxLayout, QWidget)
+                               QMenu, QMessageBox, QPushButton, QVBoxLayout, QWidget)
 from study_index.modules.module_database import ModuleDatabase
 from study_index.modules.models import LinkedFolder, Module
+from study_index.path_actions import copy_path, open_path
 
 
 class LinkedFolderPanel(QWidget):
@@ -16,6 +17,7 @@ class LinkedFolderPanel(QWidget):
         self.title_label = QLabel("Linked Folders")
         self.empty_message = QLabel("No Folders Linked")
         self.linked_folders_list = QListWidget()
+        self.linked_folders_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.add_folder_button = QPushButton("Add Folder")
         self.remove_folder_button = QPushButton("Remove Folder")
         self.remove_folder_button.setEnabled(False)
@@ -40,6 +42,29 @@ class LinkedFolderPanel(QWidget):
         self.remove_folder_button.clicked.connect(self.remove_folder)
         self.linked_folders_list.currentItemChanged.connect(self.folder_selection_changed)
         self.locate_folder_button.clicked.connect(self.locate_folder)
+        self.linked_folders_list.itemActivated.connect(self.open_folder)
+        self.linked_folders_list.customContextMenuRequested.connect(self.show_context_menu)
+
+    def open_folder(self, item: QListWidgetItem) -> None:
+        open_path(self, item.text())
+
+    @staticmethod
+    def copy_folder_path(item: QListWidgetItem) -> None:
+        copy_path(item.text())
+
+    def show_context_menu(self, position: QPoint) -> None:
+        item = self.linked_folders_list.itemAt(position)
+        if item is None:
+            return
+        self.linked_folders_list.setCurrentItem(item)
+        menu = QMenu(self)
+        open_action = menu.addAction("Open Folder")
+        copy_action = menu.addAction("Copy Path")
+        selected_action = menu.exec(self.linked_folders_list.viewport().mapToGlobal(position))
+        if selected_action == open_action:
+            self.open_folder(item)
+        elif selected_action == copy_action:
+            self.copy_folder_path(item)
 
     def load_linked_folders(self) -> None:
         for linked_folder in self.module_database.get_linked_folders(self.module.id):

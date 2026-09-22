@@ -36,4 +36,7 @@ Last updated: 22 September 2026
 
 ## Immediate Next Step
 
-Manually verify unavailable linked-folder behaviour, then make scan failures recoverable without hiding them or preventing other linked folders from loading.
+- Folder scan errors are displayed without preventing other linked folders from loading, and Locate Folder reconnects moved roots.
+- Files and linked folders support activation and context menus. Shared opening and clipboard behaviour lives in `study_index/path_actions.py`; widgets retain their own menu and selection logic.
+- Flake8 and all 26 existing tests pass with coverage disabled after these changes. New interactions have not yet been covered by automated tests; the 100% coverage gate has not been verified for this work.
+- Next: manually check linked-folder activation and its Open Folder / Copy Path menu, then continue with filename search, type filtering and sorting. Background scanning and persisted file indexes are deferred at the owner's request.

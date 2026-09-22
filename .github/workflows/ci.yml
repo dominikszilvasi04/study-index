@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Tests and lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Create Conda environment
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          activate-environment: study_index
+          environment-file: environment.yml
+          miniforge-version: latest
+          auto-activate: false
+
+      - name: Run Flake8
+        run: python -m flake8 .
+
+      - name: Run tests with coverage
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: python -m pytest
+
+  build:
+    name: Build ${{ matrix.name }}
+    needs: quality
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux
+            runner: ubuntu-latest
+            artifact: StudyIndex-linux.tar.gz
+            executable: ./dist/StudyIndex/StudyIndex
+            bundle: StudyIndex
+          - name: macOS
+            runner: macos-latest
+            artifact: StudyIndex-macos.tar.gz
+            executable: ./dist/StudyIndex.app/Contents/MacOS/StudyIndex
+            bundle: StudyIndex.app
+          - name: Windows
+            runner: windows-latest
+            artifact: StudyIndex-windows.zip
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Create Conda environment
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          activate-environment: study_index
+          environment-file: environment.yml
+          miniforge-version: latest
+          auto-activate: false
+
+      - name: Build application
+        run: python -m PyInstaller --noconfirm --clean --windowed --onedir --name StudyIndex app.py
+
+      - name: Smoke test Linux or macOS bundle
+        if: runner.os != 'Windows'
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          ${{ matrix.executable }} &
+          application_process=$!
+          sleep 3
+          if ! kill -0 "$application_process"; then
+              wait "$application_process"
+              exit 1
+          fi
+          kill "$application_process"
+          wait "$application_process" || test "$?" -eq 143
+
+      - name: Smoke test Windows bundle
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $env:QT_QPA_PLATFORM = "offscreen"
+          $process = Start-Process -FilePath "dist\StudyIndex\StudyIndex.exe" -PassThru -WindowStyle Hidden
+          Start-Sleep -Seconds 3
+          if ($process.HasExited) {
+              throw "Packaged application exited during its startup smoke test."
+          }
+          Stop-Process -Id $process.Id
+
+      - name: Package Linux or macOS bundle
+        if: runner.os != 'Windows'
+        run: tar -czf "${{ matrix.artifact }}" -C dist "${{ matrix.bundle }}"
+
+      - name: Package Windows bundle
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path "dist\StudyIndex" -DestinationPath "${{ matrix.artifact }}"
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: StudyIndex-${{ runner.os }}
+          path: ${{ matrix.artifact }}
+          if-no-files-found: error
+          retention-days: 14

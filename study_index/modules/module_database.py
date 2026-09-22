@@ -4,8 +4,8 @@ from study_index.modules.models import LinkedFolder, Module
 
 
 class ModuleDatabase:
-    def __init__(self, database_path: Path):
-        self.connection = sqlite3.connect(database_path)
+    def __init__(self, database_path: Path) -> None:
+        self.connection: sqlite3.Connection = sqlite3.connect(database_path)
         self.connection.execute("PRAGMA foreign_keys = ON")
         self.connection.execute("CREATE TABLE IF NOT EXISTS modules (id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE)")
         self.connection.execute("CREATE TABLE IF NOT EXISTS linked_folders (id INTEGER PRIMARY KEY, module_id INTEGER NOT NULL, path TEXT NOT NULL, UNIQUE(module_id, path), FOREIGN KEY(module_id) REFERENCES modules(id) ON DELETE CASCADE)")
@@ -15,7 +15,10 @@ class ModuleDatabase:
         self.connection.commit()
         if insert_result.rowcount == 0:
             return None
-        return Module(insert_result.lastrowid, name)
+        module_id = insert_result.lastrowid
+        if module_id is None:
+            raise RuntimeError("SQLite did not return an ID for the new module")
+        return Module(module_id, name)
 
     def get_modules(self) -> list[Module]:
         rows = self.connection.execute("SELECT id, name FROM modules ORDER BY name COLLATE NOCASE")
@@ -36,7 +39,10 @@ class ModuleDatabase:
         self.connection.commit()
         if insert_result.rowcount == 0:
             return None
-        return LinkedFolder(insert_result.lastrowid, module_id, path)
+        linked_folder_id = insert_result.lastrowid
+        if linked_folder_id is None:
+            raise RuntimeError("SQLite did not return an ID for the new linked folder")
+        return LinkedFolder(linked_folder_id, module_id, path)
 
     def get_linked_folders(self, module_id: int) -> list[LinkedFolder]:
         rows = self.connection.execute("SELECT id, module_id, path FROM linked_folders WHERE module_id = ? ORDER BY path COLLATE NOCASE", (module_id,))

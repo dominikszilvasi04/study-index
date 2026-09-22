@@ -1,29 +1,27 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (QFileDialog, QLabel, QListWidget, QListWidgetItem,
                                QMessageBox, QPushButton, QVBoxLayout, QWidget)
-
+from study_index.modules.module_database import ModuleDatabase
 from study_index.modules.models import LinkedFolder, Module
 
 
 class LinkedFolderPanel(QWidget):
     folders_changed = Signal()
 
-    def __init__(self, module: Module, module_database):
+    def __init__(self, module: Module,
+                 module_database: ModuleDatabase) -> None:
         super().__init__()
         self.module = module
         self.module_database = module_database
-        self.create_widgets()
-        self.create_layout()
-        self.connect_signals()
-        self.load_linked_folders()
-
-    def create_widgets(self) -> None:
         self.title_label = QLabel("Linked Folders")
         self.empty_message = QLabel("No Folders Linked")
         self.linked_folders_list = QListWidget()
         self.add_folder_button = QPushButton("Add Folder")
         self.remove_folder_button = QPushButton("Remove Folder")
         self.remove_folder_button.setEnabled(False)
+        self.create_layout()
+        self.connect_signals()
+        self.load_linked_folders()
 
     def create_layout(self) -> None:
         panel_layout = QVBoxLayout()
@@ -65,7 +63,7 @@ class LinkedFolderPanel(QWidget):
         self.folders_changed.emit()
 
     def remove_folder(self) -> None:
-        folder_item = self.linked_folders_list.currentItem()
+        folder_item = self.selected_folder_item()
         answer = QMessageBox.question(self, "Remove Folder", f'Remove "{folder_item.text()}"?')
         if answer != QMessageBox.StandardButton.Yes:
             return
@@ -81,5 +79,12 @@ class LinkedFolderPanel(QWidget):
     def update_empty_message(self) -> None:
         self.empty_message.setVisible(self.linked_folders_list.count() == 0)
 
-    def folder_selection_changed(self, current_item) -> None:
+    def folder_selection_changed(self,
+                                 current_item: QListWidgetItem | None) -> None:
         self.remove_folder_button.setEnabled(current_item is not None)
+
+    def selected_folder_item(self) -> QListWidgetItem:
+        folder_item = self.linked_folders_list.currentItem()
+        if folder_item is None:
+            raise RuntimeError("A linked folder must be selected")
+        return folder_item

@@ -1,10 +1,12 @@
 from PySide6.QtWidgets import QMainWindow, QStackedWidget
+from study_index.modules.module_database import ModuleDatabase
 from study_index.modules.module_list_page import ModuleListPage
+from study_index.modules.models import Module
 from study_index.modules.workspace.module_workspace_page import ModuleWorkspacePage
 
 
 class StudyIndexWindow(QMainWindow):
-    def __init__(self, module_database):
+    def __init__(self, module_database: ModuleDatabase) -> None:
         super().__init__()
         self.module_database = module_database
         self.setWindowTitle("Study Index")
@@ -14,7 +16,7 @@ class StudyIndexWindow(QMainWindow):
         self.page_stack.addWidget(self.module_list_page)
         self.setCentralWidget(self.page_stack)
 
-    def show_module_workspace(self, module) -> None:
+    def show_module_workspace(self, module: Module) -> None:
         workspace_page = ModuleWorkspacePage(module, self.module_database)
         workspace_page.module_list_requested.connect(self.show_module_list)
         self.page_stack.addWidget(workspace_page)
@@ -22,6 +24,8 @@ class StudyIndexWindow(QMainWindow):
 
     def show_module_list(self) -> None:
         workspace_page = self.page_stack.currentWidget()
+        if workspace_page is None:
+            raise RuntimeError("The page stack does not have a current page")
         self.page_stack.setCurrentWidget(self.module_list_page)
         self.page_stack.removeWidget(workspace_page)
         workspace_page.deleteLater()

@@ -1,8 +1,10 @@
+from pathlib import Path
+
 from study_index.modules.models import LinkedFolder, Module
 from study_index.modules.module_database import ModuleDatabase
 
 
-def test_module_crud(tmp_path):
+def test_module_crud(tmp_path: Path) -> None:
     module_database = ModuleDatabase(tmp_path / "study_index.db")
     module = module_database.add_module("Mathematics")
 
@@ -16,7 +18,7 @@ def test_module_crud(tmp_path):
     module_database.close()
 
 
-def test_module_folders(tmp_path):
+def test_module_folders(tmp_path: Path) -> None:
     module_database = ModuleDatabase(tmp_path / "study_index.db")
     module = module_database.add_module("Mathematics")
     linked_folder = module_database.add_linked_folder(module.id, "C:/College/Mathematics")

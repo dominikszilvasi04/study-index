@@ -4,7 +4,7 @@ from study_index.config import database_path
 from study_index.main_window import StudyIndexWindow
 from study_index.modules.module_database import ModuleDatabase
 
-def main():
+def main() -> int:
     application = QApplication(sys.argv)
     application.setApplicationName("StudyIndex")
 

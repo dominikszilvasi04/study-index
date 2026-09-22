@@ -6,7 +6,7 @@ from study_index.modules.models import FileMetadata
 
 
 class ModuleFilesTable(QTreeWidget):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.setHeaderLabels(["Name", "Type", "Size", "Modified", "Folder"])
         self.setRootIsDecorated(False)
@@ -17,8 +17,8 @@ class ModuleFilesTable(QTreeWidget):
         file_item = self.create_file_item(folder_path, file_metadata)
         self.addTopLevelItem(file_item)
 
-    def create_file_item(self, folder_path: str,
-                         file_metadata: FileMetadata) -> QTreeWidgetItem:
+    @staticmethod
+    def create_file_item(folder_path: str, file_metadata: FileMetadata) -> QTreeWidgetItem:
         file_item = QTreeWidgetItem([file_metadata.file_name,
                                      file_metadata.extension,
                                      format_file_size(file_metadata.size_bytes),

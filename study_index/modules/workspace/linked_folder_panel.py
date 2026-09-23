@@ -9,6 +9,13 @@ from study_index.path_actions import copy_path, open_path
 
 class LinkedFolderPanel(QFrame):
     folders_changed = Signal()
+    title_label: QLabel
+    folder_count_label: QLabel
+    empty_message: QLabel
+    linked_folders_list: QListWidget
+    add_folder_button: QPushButton
+    remove_folder_button: QPushButton
+    locate_folder_button: QPushButton
 
     def __init__(self, module: Module,
                  module_database: ModuleDatabase) -> None:

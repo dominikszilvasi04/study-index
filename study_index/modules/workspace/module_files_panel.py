@@ -8,6 +8,13 @@ from study_index.modules.workspace.module_files_table import ModuleFilesTable
 
 
 class ModuleFilesPanel(QFrame):
+    title_label: QLabel
+    file_count_label: QLabel
+    file_search: QLineEdit
+    file_type_filter: QComboBox
+    files_table: ModuleFilesTable
+    scan_errors_label: QLabel
+
     def __init__(self, module: Module,
                  module_database: ModuleDatabase) -> None:
         super().__init__()

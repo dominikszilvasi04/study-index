@@ -42,7 +42,7 @@ class ModuleFilesTable(QTreeWidget):
         file_item = self.create_file_item(folder_path, file_metadata)
         self.addTopLevelItem(file_item)
 
-    def open_file(self, item: QTreeWidgetItem, column: int) -> None:
+    def open_file(self, item: QTreeWidgetItem) -> None:
         file_path = item.data(0, Qt.ItemDataRole.UserRole)
         open_path(self, file_path)
 
@@ -70,7 +70,7 @@ class ModuleFilesTable(QTreeWidget):
         copy_action = menu.addAction("Copy Path")
         selected_action = menu.exec(self.viewport().mapToGlobal(position))
         if selected_action == open_action:
-            self.open_file(item, 0)
+            self.open_file(item)
         elif selected_action == folder_action:
             self.open_containing_folder(item)
         elif selected_action == copy_action:

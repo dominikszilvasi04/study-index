@@ -9,6 +9,15 @@ from study_index.modules.module_details_form import ModuleDetailsForm
 
 class ModuleListPage(QWidget):
     module_open_requested = Signal(object)
+    title_label: QLabel
+    description_label: QLabel
+    search_input: QLineEdit
+    empty_message: QLabel
+    modules_list: QListWidget
+    add_module_button: QPushButton
+    open_module_button: QPushButton
+    edit_module_button: QPushButton
+    delete_module_button: QPushButton
 
     def __init__(self, module_database: ModuleDatabase) -> None:
         super().__init__()

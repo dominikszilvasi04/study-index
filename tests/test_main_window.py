@@ -8,16 +8,26 @@ from study_index.modules.module_database import ModuleDatabase
 from study_index.modules.workspace.module_workspace_page import ModuleWorkspacePage
 
 
-def test_window_navigates_between_module_list_and_workspace(tmp_path: Path, qtbot: QtBot) -> None:
+def test_window_navigates_between_module_list_and_workspace(
+        tmp_path: Path, qtbot: QtBot) -> None:
     database = ModuleDatabase(tmp_path / "study_index.db")
     module = database.add_module("Mathematics")
     assert module is not None
     window = StudyIndexWindow(database)
     qtbot.addWidget(window)
+    assert window.windowTitle() == "StudyIndex"
+    assert window.minimumWidth() == 900
+    assert window.minimumHeight() == 600
+    assert window.navigation_sidebar.minimumWidth() == 200
+    assert window.navigation_sidebar.modules_button.isChecked()
     window.show_module_workspace(module)
     assert isinstance(window.page_stack.currentWidget(), ModuleWorkspacePage)
     assert window.page_stack.count() == 2
-    window.show_module_list()
+    window.navigation_sidebar.modules_button.click()
+    assert window.page_stack.currentWidget() is window.module_list_page
+    assert window.page_stack.count() == 1
+    assert window.navigation_sidebar.modules_button.isChecked()
+    window.navigation_sidebar.modules_button.click()
     assert window.page_stack.currentWidget() is window.module_list_page
     assert window.page_stack.count() == 1
     database.close()

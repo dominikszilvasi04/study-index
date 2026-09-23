@@ -16,6 +16,7 @@ Last updated: 23 September 2026
 - The Conda environment was created successfully.
 - A root `app.py` contains the first PySide6 application shell and launches successfully.
 - `StudyIndexWindow` is separated into `study_index/main_window.py`.
+- `StudyIndexWindow` composes a persistent `NavigationSidebar` with the page stack; the sidebar owns its controls and emits navigation requests.
 - Shared module models, persistence and the module-list page live directly under `study_index/modules/`.
 - Module-workspace code is grouped under `study_index/modules/workspace/`, with separate page, linked-folder panel, module files table and file finder responsibilities.
 - `ModuleDatabase` provides clearly named module and linked-folder operations backed by SQLite.
@@ -43,4 +44,4 @@ Last updated: 23 September 2026
 - Filtering uses named filename/type column constants and descriptive intermediate variables for readability.
 - Column sorting is enabled, initially by filename. A small FileTableItem comparison uses raw sizes/timestamps and case-insensitive text. Three sorting cases check ascending and descending order, including dates with identical displayed minutes. Flake8 and 29 tests pass with coverage disabled.
 - Modules now have optional code and term fields in a shared Add/Edit dialog, shown in the module list and workspace. The owner authorised clearing the development database to simplify schema creation: the local StudyIndex database was reset, and new databases create all columns directly without upgrade logic. Tests cover persistence, blank optional fields, duplicate names, add/edit forms and cancellation.
-- Next: manually try the module details form. Archiving, background scanning and persisted file indexes are deferred at the owner's request.
+- Next: add the application-wide QSS theme for the new main-window shell, then manually check the module details form. Archiving, background scanning and persisted file indexes are deferred at the owner's request.

@@ -1,5 +1,7 @@
 import sqlite3
 from pathlib import Path
+from datetime import date, time
+from study_index.events.models import EventType, StudyEvent
 
 
 class EventDatabase:
@@ -7,6 +9,22 @@ class EventDatabase:
         self.connection: sqlite3.Connection = sqlite3.connect(database_path)
         self.connection.execute('PRAGMA foreign_keys = ON')
         self.initialise_tables()
+
+    def add_event(self, title: str, event_type: EventType, event_date: date, event_time: time | None = None,
+                  module_id: int | None = None, notes: str = "") -> StudyEvent:
+        insert_result = self.connection.execute(
+            "INSERT INTO events (title, event_type, event_date, event_time, module_id, notes) VALUES (?, ?, ?, ?, ?, ?)",
+            (title,
+             event_type.value,
+             event_date.isoformat(),
+             event_time.isoformat() if event_time is not None else None,
+             module_id,
+             notes))
+        self.connection.commit()
+        event_id = insert_result.lastrowid
+        if event_id is None:
+            raise RuntimeError("SQLite did not return an ID for the new event")
+        return StudyEvent(event_id, title, event_type, event_date, event_time, module_id, notes)
 
     def close(self) -> None:
         self.connection.close()

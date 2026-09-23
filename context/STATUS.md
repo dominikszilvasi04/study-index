@@ -1,6 +1,6 @@
 # Current Status
 
-Last updated: 22 September 2026
+Last updated: 23 September 2026
 
 ## Repository
 
@@ -42,4 +42,5 @@ Last updated: 22 September 2026
 - Filename search and a fixed file-type dropdown filter together: All file types, PDF, Word (.doc/.docx), PowerPoint (.ppt/.pptx), and Text (.txt). Refresh leaves the selection unchanged. Other types and files without extensions remain visible under All file types. Dynamic type discovery and dropdown rebuilding were removed at the owner's request for simpler code.
 - Filtering uses named filename/type column constants and descriptive intermediate variables for readability.
 - Column sorting is enabled, initially by filename. A small FileTableItem comparison uses raw sizes/timestamps and case-insensitive text. Three sorting cases check ascending and descending order, including dates with identical displayed minutes. Flake8 and 29 tests pass with coverage disabled.
-- Next: manually verify sorting alongside filtering and refresh, then continue with module codes, terms and archiving. Background scanning and persisted file indexes are deferred at the owner's request.
+- Modules now have optional code and term fields in a shared Add/Edit dialog, shown in the module list and workspace. The owner authorised clearing the development database to simplify schema creation: the local StudyIndex database was reset, and new databases create all columns directly without upgrade logic. Tests cover persistence, blank optional fields, duplicate names, add/edit forms and cancellation.
+- Next: manually try the module details form. Archiving, background scanning and persisted file indexes are deferred at the owner's request.

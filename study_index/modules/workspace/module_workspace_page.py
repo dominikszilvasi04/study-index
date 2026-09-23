@@ -18,8 +18,9 @@ class ModuleWorkspacePage(QWidget):
         self.module = module
         self.module_database = module_database
         self.module_name_label = QLabel(self.module.name)
-        self.linked_folder_panel = LinkedFolderPanel(self.module,
-                                                     self.module_database)
+        self.module_details_label = QLabel(" · ".join(value for value in (module.code, module.term) if value))
+        self.module_details_label.setVisible(bool(module.code or module.term))
+        self.linked_folder_panel = LinkedFolderPanel(self.module, self.module_database)
         self.files_label = QLabel("Files")
         self.file_search = QLineEdit()
         self.file_search.setPlaceholderText("Search for files")
@@ -44,6 +45,7 @@ class ModuleWorkspacePage(QWidget):
     def create_layout(self) -> None:
         page_layout = QVBoxLayout()
         page_layout.addWidget(self.module_name_label)
+        page_layout.addWidget(self.module_details_label)
         page_layout.addWidget(self.linked_folder_panel)
         page_layout.addWidget(self.files_label)
         filter_layout = QHBoxLayout()

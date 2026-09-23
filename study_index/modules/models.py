@@ -5,6 +5,8 @@ from dataclasses import dataclass
 class Module:
     id: int
     name: str
+    code: str = ""
+    term: str = ""
 
 
 @dataclass(frozen=True)

@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pytest
 
-import study_index.modules.module_database as module_database_module
 from study_index.modules.models import LinkedFolder, Module
 from study_index.modules.module_database import ModuleDatabase
 
@@ -78,11 +77,30 @@ class ConnectionWithoutInsertIds:
 def test_missing_sqlite_insert_ids_are_reported(
         tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     connection = ConnectionWithoutInsertIds()
-    monkeypatch.setattr(module_database_module.sqlite3,
-                        "connect",
-                        lambda database_path: connection)
     module_database = ModuleDatabase(tmp_path / "study_index.db")
+    module_database.close()
+    monkeypatch.setattr(module_database, "connection", connection)
     with pytest.raises(RuntimeError, match="ID for the new module"):
         module_database.add_module("Mathematics")
     with pytest.raises(RuntimeError, match="ID for the new linked folder"):
         module_database.add_linked_folder(1, "C:/College")
+
+
+def test_module_details_persist_after_reopening(tmp_path: Path) -> None:
+    database_path = tmp_path / "study_index.db"
+    database = ModuleDatabase(database_path)
+    database.add_module("Maths")
+    database.add_linked_folder(1, "C:/College")
+    assert database.get_modules() == [Module(1, "Maths")]
+    assert database.get_linked_folders(1) == [LinkedFolder(1, 1, "C:/College")]
+    assert database.update_module(1, "Mathematics", "MATH101", "2026/27 Semester 1")
+    database.close()
+
+    database = ModuleDatabase(database_path)
+    assert database.get_modules() == [Module(1, "Mathematics", "MATH101", "2026/27 Semester 1")]
+    assert database.get_linked_folders(1) == [LinkedFolder(1, 1, "C:/College")]
+    database.add_module("Physics")
+    assert not database.update_module(1, "Physics", "CHANGED", "CHANGED")
+    assert database.get_modules()[0].code == "MATH101"
+    assert database.update_module(1, "Mathematics", "", "")
+    database.close()

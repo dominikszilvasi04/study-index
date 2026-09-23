@@ -1,17 +1,18 @@
 from pathlib import Path
 
 import pytest
-from PySide6.QtWidgets import QInputDialog, QMessageBox
+from PySide6.QtWidgets import QDialog, QMessageBox
 from pytestqt.qtbot import QtBot
 
 from study_index.modules.module_database import ModuleDatabase
 from study_index.modules.module_list_page import ModuleListPage
+from study_index.modules.module_details_form import ModuleDetailsForm
 
 
 def test_page_loads_modules_and_emits_selected_module(tmp_path: Path,
                                                       qtbot: QtBot) -> None:
     database = ModuleDatabase(tmp_path / "study_index.db")
-    module = database.add_module("Mathematics")
+    module = database.add_module("Mathematics", "MATH101", "Semester 1")
     assert module is not None
     page = ModuleListPage(database)
     qtbot.addWidget(page)
@@ -33,16 +34,32 @@ def test_add_and_edit_module(tmp_path: Path, qtbot: QtBot,
     database = ModuleDatabase(tmp_path / "study_index.db")
     page = ModuleListPage(database)
     qtbot.addWidget(page)
-    responses = iter([("  Mathematics  ", True), ("Physics", True)])
-    monkeypatch.setattr(QInputDialog,
-                        "getText",
-                        lambda *args, **kwargs: next(responses))
+    responses = iter([("  Mathematics  ", " MATH101 ", " Semester 1 "),
+                      ("Physics", "PHY101", "Semester 2")])
+
+    def complete_form(form):
+        if form.windowTitle() == "Edit Module":
+            assert form.name_input.text() == "Mathematics"
+            assert form.code_input.text() == "MATH101"
+            assert form.term_input.text() == "Semester 1"
+        name, code, term = next(responses)
+        form.name_input.setText(name)
+        form.code_input.setText(code)
+        form.term_input.setText(term)
+        form.accept()
+        return form.result()
+
+    monkeypatch.setattr(ModuleDetailsForm, "exec", complete_form)
     page.add_module()
-    assert page.modules_list.item(0).text() == "Mathematics"
+    assert page.modules_list.item(0).text() == "Mathematics (MATH101) — Semester 1"
     page.modules_list.setCurrentRow(0)
     page.edit_module()
-    assert page.modules_list.item(0).text() == "Physics"
-    assert database.get_modules()[0].name == "Physics"
+    assert page.modules_list.item(0).text() == "Physics (PHY101) — Semester 2"
+    saved_module = database.get_modules()[0]
+    assert (saved_module.name, saved_module.code, saved_module.term) == ("Physics", "PHY101", "Semester 2")
+    with qtbot.waitSignal(page.module_open_requested) as signal:
+        page.request_module_open()
+    assert signal.args == [saved_module]
     database.close()
 
 
@@ -58,24 +75,19 @@ def test_module_name_rejections_show_expected_behaviour(
     monkeypatch.setattr(QMessageBox,
                         "warning",
                         lambda parent, title, message: warnings.append(message))
-    monkeypatch.setattr(QInputDialog,
-                        "getText",
-                        lambda *args, **kwargs: ("", False))
-    assert page.request_module_name("Add Module") is None
-    monkeypatch.setattr(QInputDialog,
-                        "getText",
-                        lambda *args, **kwargs: ("   ", True))
-    assert page.request_module_name("Add Module") is None
+    monkeypatch.setattr(ModuleDetailsForm, "exec", lambda self: QDialog.DialogCode.Rejected)
+    assert page.request_module_details("Add Module") is None
+    form = ModuleDetailsForm(page, "Add Module")
+    qtbot.addWidget(form)
+    form.name_input.setText("   ")
+    form.accept()
+    assert form.result() == QDialog.DialogCode.Rejected
     assert warnings == ["Module name cannot be empty"]
-    monkeypatch.setattr(QInputDialog,
-                        "getText",
-                        lambda *args, **kwargs: ("Mathematics", True))
+    monkeypatch.setattr(page, "request_module_details", lambda *args: ("Mathematics", "", ""))
     page.add_module()
     assert warnings[-1] == "Module name already exists"
     page.modules_list.setCurrentRow(0)
-    monkeypatch.setattr(QInputDialog,
-                        "getText",
-                        lambda *args, **kwargs: ("Physics", True))
+    monkeypatch.setattr(page, "request_module_details", lambda *args: ("Physics", "", ""))
     page.edit_module()
     assert warnings[-1] == "Module name already exists"
     database.close()
@@ -124,8 +136,8 @@ def test_cancelled_add_and_edit_leave_modules_unchanged(
     qtbot.addWidget(page)
     page.modules_list.setCurrentRow(0)
     monkeypatch.setattr(page,
-                        "request_module_name",
-                        lambda title, current_name="": None)
+                        "request_module_details",
+                        lambda title, module=None: None)
     page.add_module()
     page.edit_module()
     assert page.modules_list.count() == 1

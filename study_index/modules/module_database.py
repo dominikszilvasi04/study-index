@@ -7,22 +7,29 @@ class ModuleDatabase:
     def __init__(self, database_path: Path) -> None:
         self.connection: sqlite3.Connection = sqlite3.connect(database_path)
         self.connection.execute("PRAGMA foreign_keys = ON")
-        self.connection.execute("CREATE TABLE IF NOT EXISTS modules (id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE)")
+        self.connection.execute("CREATE TABLE IF NOT EXISTS modules (id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, code TEXT NOT NULL DEFAULT '', term TEXT NOT NULL DEFAULT '')")
         self.connection.execute("CREATE TABLE IF NOT EXISTS linked_folders (id INTEGER PRIMARY KEY, module_id INTEGER NOT NULL, path TEXT NOT NULL, UNIQUE(module_id, path), FOREIGN KEY(module_id) REFERENCES modules(id) ON DELETE CASCADE)")
 
-    def add_module(self, name: str) -> Module | None:
-        insert_result = self.connection.execute("INSERT OR IGNORE INTO modules (name) VALUES (?)", (name,))
+    def add_module(self, name: str, code: str = "", term: str = "") -> Module | None:
+        insert_result = self.connection.execute("INSERT OR IGNORE INTO modules (name, code, term) VALUES (?, ?, ?)", (name, code, term))
         self.connection.commit()
         if insert_result.rowcount == 0:
             return None
         module_id = insert_result.lastrowid
         if module_id is None:
             raise RuntimeError("SQLite did not return an ID for the new module")
-        return Module(module_id, name)
+        return Module(module_id, name, code, term)
 
     def get_modules(self) -> list[Module]:
-        rows = self.connection.execute("SELECT id, name FROM modules ORDER BY name COLLATE NOCASE")
-        return [Module(row[0], row[1]) for row in rows]
+        rows = self.connection.execute("SELECT id, name, code, term FROM modules ORDER BY name COLLATE NOCASE")
+        return [Module(row[0], row[1], row[2], row[3]) for row in rows]
+
+    def update_module(self, module_id: int, name: str, code: str, term: str) -> bool:
+        update_result = self.connection.execute(
+            "UPDATE OR IGNORE modules SET name = ?, code = ?, term = ? WHERE id = ?",
+            (name, code, term, module_id))
+        self.connection.commit()
+        return update_result.rowcount == 1
 
     def rename_module(self, module_id: int, name: str) -> bool:
         update_result = self.connection.execute("UPDATE OR IGNORE modules SET name = ? WHERE id = ?", (name, module_id))

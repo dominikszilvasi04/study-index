@@ -19,7 +19,6 @@ class ModuleWorkspacePage(QWidget):
         self.module_database = module_database
         self.module_name_label = QLabel(self.module.name)
         self.module_details_label = QLabel(" · ".join(value for value in (module.code, module.term) if value))
-        self.module_details_label.setVisible(bool(module.code or module.term))
         self.linked_folder_panel = LinkedFolderPanel(self.module, self.module_database)
         self.files_label = QLabel("Files")
         self.file_search = QLineEdit()
@@ -39,6 +38,7 @@ class ModuleWorkspacePage(QWidget):
         self.scan_errors_label.setWordWrap(True)
         self.scan_errors_label.hide()
         self.create_layout()
+        self.module_details_label.setVisible(bool(module.code or module.term))
         self.connect_signals()
         self.refresh_files()
 

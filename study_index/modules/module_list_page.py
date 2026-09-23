@@ -37,10 +37,11 @@ class ModuleListPage(QWidget):
 
     def connect_signals(self) -> None:
         self.add_module_button.clicked.connect(self.add_module)
-        self.open_module_button.clicked.connect(self.request_module_open)
+        self.open_module_button.clicked.connect(self.open_module_button_clicked)
         self.edit_module_button.clicked.connect(self.edit_module)
         self.delete_module_button.clicked.connect(self.delete_module)
         self.modules_list.currentItemChanged.connect(self.module_selection_changed)
+        self.modules_list.itemActivated.connect(self.module_item_activated)
 
     def load_modules(self) -> None:
         for module in self.module_database.get_modules():
@@ -104,9 +105,14 @@ class ModuleListPage(QWidget):
         self.edit_module_button.setEnabled(module_selected)
         self.delete_module_button.setEnabled(module_selected)
 
-    def request_module_open(self) -> None:
+    def open_module_button_clicked(self) -> None:
         item = self.selected_module_item()
-        self.module_open_requested.emit(item.data(Qt.ItemDataRole.UserRole))
+        module = item.data(Qt.ItemDataRole.UserRole)
+        self.module_open_requested.emit(module)
+
+    def module_item_activated(self, item: QListWidgetItem) -> None:
+        module = item.data(Qt.ItemDataRole.UserRole)
+        self.module_open_requested.emit(module)
 
     def selected_module_item(self) -> QListWidgetItem:
         item = self.modules_list.currentItem()

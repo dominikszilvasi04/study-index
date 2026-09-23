@@ -24,7 +24,10 @@ def test_page_loads_modules_and_emits_selected_module(tmp_path: Path,
     assert page.edit_module_button.isEnabled()
     assert page.delete_module_button.isEnabled()
     with qtbot.waitSignal(page.module_open_requested) as signal:
-        page.request_module_open()
+        page.open_module_button_clicked()
+    assert signal.args == [module]
+    with qtbot.waitSignal(page.module_open_requested) as signal:
+        page.modules_list.itemActivated.emit(page.modules_list.item(0))
     assert signal.args == [module]
     database.close()
 
@@ -58,7 +61,7 @@ def test_add_and_edit_module(tmp_path: Path, qtbot: QtBot,
     saved_module = database.get_modules()[0]
     assert (saved_module.name, saved_module.code, saved_module.term) == ("Physics", "PHY101", "Semester 2")
     with qtbot.waitSignal(page.module_open_requested) as signal:
-        page.request_module_open()
+        page.open_module_button_clicked()
     assert signal.args == [saved_module]
     database.close()
 

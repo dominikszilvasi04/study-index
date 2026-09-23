@@ -1,5 +1,5 @@
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QLabel,QLineEdit, QPushButton, QVBoxLayout, QWidget
 
 from study_index.modules.module_database import ModuleDatabase
 from study_index.modules.models import LinkedFolder, Module
@@ -20,6 +20,9 @@ class ModuleWorkspacePage(QWidget):
         self.linked_folder_panel = LinkedFolderPanel(self.module,
                                                      self.module_database)
         self.files_label = QLabel("Files")
+        self.file_search = QLineEdit()
+        self.file_search.setPlaceholderText("Search for files")
+        self.file_search.setClearButtonEnabled(True)
         self.files_table = ModuleFilesTable()
         self.refresh_button = QPushButton("Refresh")
         self.back_button = QPushButton("Back to Modules")
@@ -35,6 +38,7 @@ class ModuleWorkspacePage(QWidget):
         page_layout.addWidget(self.module_name_label)
         page_layout.addWidget(self.linked_folder_panel)
         page_layout.addWidget(self.files_label)
+        page_layout.addWidget(self.file_search)
         page_layout.addWidget(self.files_table)
         page_layout.addWidget(self.scan_errors_label)
         page_layout.addWidget(self.refresh_button)
@@ -45,6 +49,7 @@ class ModuleWorkspacePage(QWidget):
         self.linked_folder_panel.folders_changed.connect(self.refresh_files)
         self.refresh_button.clicked.connect(self.refresh_files)
         self.back_button.clicked.connect(self.module_list_requested.emit)
+        self.file_search.textChanged.connect(self.files_table.filter_files)
 
     def refresh_files(self) -> None:
         self.files_table.clear()
@@ -56,6 +61,7 @@ class ModuleWorkspacePage(QWidget):
                 errors.append(f"{linked_folder.path}: {error}")
         self.scan_errors_label.setText("\n".join(errors))
         self.scan_errors_label.setVisible(bool(errors))
+        self.files_table.filter_files(self.file_search.text())
 
     def load_linked_folder_files(self, linked_folder: LinkedFolder) -> None:
         file_finder = FileFinder(linked_folder.path)

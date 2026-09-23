@@ -29,6 +29,13 @@ class ModuleFilesTable(QTreeWidget):
         file_path = item.data(0, Qt.ItemDataRole.UserRole)
         open_path(self, file_path)
 
+    def filter_files(self, search_text: str) -> None:
+        search_text = search_text.strip().casefold()
+        for row in range(self.topLevelItemCount()):
+            item = self.topLevelItem(row)
+            file_name = item.text(0).casefold()
+            item.setHidden(search_text not in file_name)
+
     def show_context_menu(self, position: QPoint) -> None:
         item = self.itemAt(position)
         if item is None:

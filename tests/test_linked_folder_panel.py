@@ -27,6 +27,7 @@ def test_add_folder_and_duplicate_warning(tmp_path: Path, qtbot: QtBot,
     with qtbot.waitSignal(panel.folders_changed):
         panel.add_folder()
     assert panel.linked_folders_list.count() == 1
+    assert panel.folder_count_label.text() == "(1)"
     panel.add_folder()
     assert warnings == ["Folder is already linked"]
     database.close()

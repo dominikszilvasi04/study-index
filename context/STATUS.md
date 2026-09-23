@@ -22,6 +22,7 @@ Last updated: 23 September 2026
 - Module-workspace code is grouped under `study_index/modules/workspace/`, with separate page, linked-folder panel, module files table and file finder responsibilities.
 - `ModuleDatabase` provides clearly named module and linked-folder operations backed by SQLite.
 - Opening a module displays its workspace through the main window's stacked pages.
+- The module workspace now has a clear module heading and back action, a compact linked-folder panel and a larger searchable files panel. Related actions sit within their panel and live folder/file counts make the current contents clear.
 - Linked-folder records are managed by `ModuleDatabase` to keep the initial workflow small.
 - A module workspace can add an existing folder through the native picker, list persisted folder references and remove a reference without changing the folder.
 - Linked folders are searched read-only and their file metadata is displayed through a dedicated module files table.
@@ -45,4 +46,4 @@ Last updated: 23 September 2026
 - Filtering uses named filename/type column constants and descriptive intermediate variables for readability.
 - Column sorting is enabled, initially by filename. A small FileTableItem comparison uses raw sizes/timestamps and case-insensitive text. Three sorting cases check ascending and descending order, including dates with identical displayed minutes. Flake8 and 29 tests pass with coverage disabled.
 - Modules now have optional code and term fields in a shared Add/Edit dialog, shown in the module list and workspace. The owner authorised clearing the development database to simplify schema creation: the local StudyIndex database was reset, and new databases create all columns directly without upgrade logic. Tests cover persistence, blank optional fields, duplicate names, add/edit forms and cancellation.
-- Next: redesign the module-list page with a clear header, search and module cards, then manually check the module details form. Archiving, background scanning and persisted file indexes are deferred at the owner's request.
+- The module workspace has been redesigned in the Forest Paper style and visually checked at both 1200 x 760 and the application's 900 x 600 minimum size. Next: redesign the module-list page with a clear header, search and module cards, then manually check the module details form. Archiving, background scanning and persisted file indexes are deferred at the owner's request.

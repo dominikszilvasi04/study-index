@@ -7,6 +7,7 @@
 - Original academic files stay in their current folders. StudyIndex stores references and derived metadata.
 - The application must remain useful without an account or internet connection.
 - Use the Forest Paper visual direction: warm paper-like neutral surfaces with a restrained forest-green accent.
+- Structure the module workspace as a clear module header above two task-focused panels: linked folders on the left and searchable files on the right. Keep actions beside the content they affect, with the back and refresh actions at page level.
 
 ## Python And Dependencies
 

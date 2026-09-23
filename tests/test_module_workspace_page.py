@@ -19,9 +19,11 @@ def test_workspace_loads_and_refreshes_linked_folder_files(
     qtbot.addWidget(page)
     assert page.module_name_label.text() == "Mathematics"
     assert page.files_table.topLevelItemCount() == 1
+    assert page.files_count_label.text() == "(1)"
     (linked_directory / "second.pdf").write_text("PDF")
     page.refresh_button.click()
     assert page.files_table.topLevelItemCount() == 2
+    assert page.files_count_label.text() == "(2)"
     with qtbot.waitSignal(page.module_list_requested):
         page.back_button.click()
     database.close()

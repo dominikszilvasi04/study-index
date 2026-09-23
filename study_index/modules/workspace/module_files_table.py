@@ -6,10 +6,20 @@ from study_index.formatters import format_file_size, format_timestamp
 from study_index.modules.models import FileMetadata
 from study_index.path_actions import copy_path, open_path
 
-
-# Qt numbers columns from zero: Name is first, Type is second.
 FILE_NAME_COLUMN = 0
 FILE_TYPE_COLUMN = 1
+FILE_SIZE_COLUMN = 2
+FILE_MODIFIED_COLUMN = 3
+
+
+class FileTableItem(QTreeWidgetItem):
+    def __lt__(self, other: QTreeWidgetItem) -> bool:
+        column = self.treeWidget().sortColumn()
+        if column in (FILE_SIZE_COLUMN, FILE_MODIFIED_COLUMN):
+            value = self.data(column, Qt.ItemDataRole.UserRole)
+            other_value = other.data(column, Qt.ItemDataRole.UserRole)
+            return value < other_value
+        return self.text(column).casefold() < other.text(column).casefold()
 
 
 class ModuleFilesTable(QTreeWidget):
@@ -20,6 +30,8 @@ class ModuleFilesTable(QTreeWidget):
         self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.header().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.setSortingEnabled(True)
+        self.sortItems(FILE_NAME_COLUMN, Qt.SortOrder.AscendingOrder)
         self.connect_signals()
 
     def connect_signals(self) -> None:
@@ -40,12 +52,10 @@ class ModuleFilesTable(QTreeWidget):
             file_row = self.topLevelItem(row_number)
             file_name = file_row.text(FILE_NAME_COLUMN)
             file_extension = file_row.text(FILE_TYPE_COLUMN)
-
             name_matches = search_text in file_name.casefold()
             type_matches = True
             if selected_extensions is not None:
                 type_matches = file_extension in selected_extensions
-
             show_file = name_matches and type_matches
             file_row.setHidden(not show_file)
 
@@ -78,10 +88,12 @@ class ModuleFilesTable(QTreeWidget):
 
     @staticmethod
     def create_file_item(folder_path: str, file_metadata: FileMetadata) -> QTreeWidgetItem:
-        file_item = QTreeWidgetItem([file_metadata.file_name,
+        file_item = FileTableItem([file_metadata.file_name,
                                      file_metadata.extension,
                                      format_file_size(file_metadata.size_bytes),
                                      format_timestamp(file_metadata.modified_timestamp),
                                      folder_path])
         file_item.setData(0, Qt.ItemDataRole.UserRole, file_metadata.full_path)
+        file_item.setData(FILE_SIZE_COLUMN, Qt.ItemDataRole.UserRole, file_metadata.size_bytes)
+        file_item.setData(FILE_MODIFIED_COLUMN, Qt.ItemDataRole.UserRole, file_metadata.modified_timestamp)
         return file_item

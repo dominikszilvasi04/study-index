@@ -17,15 +17,15 @@ def test_workspace_loads_and_refreshes_linked_folder_files(
     database.add_linked_folder(module.id, str(linked_directory))
     page = ModuleWorkspacePage(module, database)
     qtbot.addWidget(page)
-    assert page.module_name_label.text() == "Mathematics"
-    assert page.files_table.topLevelItemCount() == 1
-    assert page.files_count_label.text() == "(1)"
+    assert page.workspace_header.module_name_label.text() == "Mathematics"
+    assert page.files_panel.files_table.topLevelItemCount() == 1
+    assert page.files_panel.file_count_label.text() == "(1)"
     (linked_directory / "second.pdf").write_text("PDF")
-    page.refresh_button.click()
-    assert page.files_table.topLevelItemCount() == 2
-    assert page.files_count_label.text() == "(2)"
+    page.workspace_header.refresh_button.click()
+    assert page.files_panel.files_table.topLevelItemCount() == 2
+    assert page.files_panel.file_count_label.text() == "(2)"
     with qtbot.waitSignal(page.module_list_requested):
-        page.back_button.click()
+        page.workspace_header.back_button.click()
     database.close()
 
 
@@ -37,7 +37,7 @@ def test_workspace_displays_folder_scan_errors(tmp_path: Path, qtbot: QtBot) -> 
     database.add_linked_folder(module.id, str(missing_directory))
     page = ModuleWorkspacePage(module, database)
     qtbot.addWidget(page)
-    assert page.scan_errors_label.isVisibleTo(page)
-    assert str(missing_directory) in page.scan_errors_label.text()
-    assert "is not a directory" in page.scan_errors_label.text()
+    assert page.files_panel.scan_errors_label.isVisibleTo(page)
+    assert str(missing_directory) in page.files_panel.scan_errors_label.text()
+    assert "is not a directory" in page.files_panel.scan_errors_label.text()
     database.close()

@@ -16,17 +16,18 @@ class LinkedFolderPanel(QFrame):
         self.setObjectName("linkedFolderPanel")
         self.module = module
         self.module_database = module_database
+        self.create_widgets()
+        self.create_layout()
+        self.connect_signals()
+        self.load_linked_folders()
+
+    def create_widgets(self) -> None:
         self.title_label = QLabel("Linked Folders")
         self.title_label.setObjectName("workspacePanelTitle")
         self.folder_count_label = QLabel()
         self.folder_count_label.setObjectName("workspaceCountLabel")
-        self.empty_message = QLabel("No Folders Linked")
-        self.empty_message.setObjectName("folderEmptyMessage")
-        self.empty_message.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.linked_folders_list = QListWidget()
-        self.linked_folders_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.linked_folders_list.setTextElideMode(Qt.TextElideMode.ElideMiddle)
-        self.linked_folders_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.empty_message = self.create_empty_message()
+        self.linked_folders_list = self.create_folders_list()
         self.add_folder_button = QPushButton("Add Folder")
         self.add_folder_button.setObjectName("primaryActionButton")
         self.remove_folder_button = QPushButton("Remove Folder")
@@ -34,15 +35,33 @@ class LinkedFolderPanel(QFrame):
         self.remove_folder_button.setEnabled(False)
         self.locate_folder_button = QPushButton("Locate Folder")
         self.locate_folder_button.setEnabled(False)
-        self.create_layout()
-        self.connect_signals()
-        self.load_linked_folders()
+
+    @staticmethod
+    def create_empty_message() -> QLabel:
+        empty_message = QLabel("No Folders Linked")
+        empty_message.setObjectName("folderEmptyMessage")
+        empty_message.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        return empty_message
+
+    @staticmethod
+    def create_folders_list() -> QListWidget:
+        folders_list = QListWidget()
+        folders_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        folders_list.setTextElideMode(Qt.TextElideMode.ElideMiddle)
+        folders_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        return folders_list
 
     def create_layout(self) -> None:
         panel_layout = QVBoxLayout(self)
         panel_layout.setContentsMargins(0, 0, 0, 0)
         panel_layout.setSpacing(0)
 
+        panel_layout.addLayout(self.create_header_layout())
+        panel_layout.addWidget(self.empty_message, 1)
+        panel_layout.addWidget(self.linked_folders_list, 1)
+        panel_layout.addWidget(self.create_action_bar())
+
+    def create_header_layout(self) -> QHBoxLayout:
         header_layout = QHBoxLayout()
         header_layout.setContentsMargins(18, 14, 18, 14)
         header_layout.setSpacing(8)
@@ -50,10 +69,9 @@ class LinkedFolderPanel(QFrame):
         header_layout.addWidget(self.folder_count_label)
         header_layout.addStretch()
         header_layout.addWidget(self.add_folder_button)
-        panel_layout.addLayout(header_layout)
-        panel_layout.addWidget(self.empty_message, 1)
-        panel_layout.addWidget(self.linked_folders_list, 1)
+        return header_layout
 
+    def create_action_bar(self) -> QFrame:
         action_bar = QFrame()
         action_bar.setObjectName("folderActionBar")
         action_layout = QHBoxLayout(action_bar)
@@ -62,7 +80,7 @@ class LinkedFolderPanel(QFrame):
         action_layout.addWidget(self.locate_folder_button)
         action_layout.addWidget(self.remove_folder_button)
         action_layout.addStretch()
-        panel_layout.addWidget(action_bar)
+        return action_bar
 
     def connect_signals(self) -> None:
         self.add_folder_button.clicked.connect(self.add_folder)

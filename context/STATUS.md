@@ -23,6 +23,7 @@ Last updated: 23 September 2026
 - `ModuleDatabase` provides clearly named module and linked-folder operations backed by SQLite.
 - Opening a module displays its workspace through the main window's stacked pages.
 - The module workspace now has a clear module heading and back action, a compact linked-folder panel and a larger searchable files panel. Related actions sit within their panel and live folder/file counts make the current contents clear.
+- The workspace page is now a small composition layer. `ModuleWorkspaceHeader` owns module identity and page-level actions, `ModuleFilesPanel` owns file scanning/filtering feedback, and `LinkedFolderPanel` owns folder management. These components communicate through explicit Qt signals.
 - Linked-folder records are managed by `ModuleDatabase` to keep the initial workflow small.
 - A module workspace can add an existing folder through the native picker, list persisted folder references and remove a reference without changing the folder.
 - Linked folders are searched read-only and their file metadata is displayed through a dedicated module files table.

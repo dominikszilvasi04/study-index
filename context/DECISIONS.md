@@ -34,6 +34,8 @@
 - Keep reusable display formatting in `study_index/formatters.py` rather than embedding it in page classes or collecting unrelated helpers in a generic utilities module.
 - Keep linked-folder persistence in `ModuleDatabase` while folders exist only as part of a module workflow.
 - Use `StudyIndexWindow` to switch between the module list and a module workspace.
+- Keep feature pages focused on composition. Extract a named widget when a visually and behaviourally cohesive section, such as the workspace header or files panel, would otherwise make the page construct and coordinate unrelated controls.
+- Let workspace components own their widgets and local behaviour, and use explicit Qt signals for user intent between components. Do not introduce a generic UI-builder layer.
 - Prefer explicit named component attributes such as `self.module_list_page` and `self.add_module_button` where they make the object structure easy to inspect.
 - Create classes for cohesive pages or reusable components, not placeholder classes for individual labels, buttons or dependencies that have no behaviour yet.
 - Keep `study_index/__init__.py` empty. It marks the application package but must not trigger startup or perform registration through import side effects.

@@ -6,6 +6,7 @@
 - StudyIndex is a local-first desktop application for connecting college tasks, modules and existing files.
 - Original academic files stay in their current folders. StudyIndex stores references and derived metadata.
 - The application must remain useful without an account or internet connection.
+- Use the Forest Paper visual direction: warm paper-like neutral surfaces with a restrained forest-green accent.
 
 ## Python And Dependencies
 

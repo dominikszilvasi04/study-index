@@ -70,7 +70,15 @@ jobs:
           auto-activate: false
 
       - name: Build application
-        run: python -m PyInstaller --noconfirm --clean --windowed --onedir --name StudyIndex app.py
+        run: >
+          python -m PyInstaller
+          --noconfirm
+          --clean
+          --windowed
+          --onedir
+          --name StudyIndex
+          --add-data "study_index/application.qss:study_index"
+          app.py
 
       - name: Smoke test macOS bundle
         if: runner.os == 'macOS'

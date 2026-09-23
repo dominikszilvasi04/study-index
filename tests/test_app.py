@@ -13,6 +13,7 @@ class FakeSignal:
 
 class FakeApplication:
     created_arguments = None
+    created_stylesheet = None
 
     def __init__(self, arguments) -> None:
         FakeApplication.created_arguments = arguments
@@ -21,6 +22,9 @@ class FakeApplication:
 
     def setApplicationName(self, application_name: str) -> None:
         self.application_name = application_name
+
+    def setStyleSheet(self, stylesheet: str) -> None:
+        FakeApplication.created_stylesheet = stylesheet
 
     def exec(self) -> int:
         return 17
@@ -58,3 +62,5 @@ def test_main_composes_and_runs_application(tmp_path: Path,
     assert data_path.parent.is_dir()
     assert FakeDatabase.created_path == data_path
     assert isinstance(FakeWindow.created_database, FakeDatabase)
+    assert FakeApplication.created_stylesheet is not None
+    assert "#navigationSidebar" in FakeApplication.created_stylesheet

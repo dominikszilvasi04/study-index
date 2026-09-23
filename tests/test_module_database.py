@@ -33,6 +33,24 @@ def test_module_folders(tmp_path: Path) -> None:
     module_database.close()
 
 
+def test_relocate_linked_folder(tmp_path: Path) -> None:
+    module_database = ModuleDatabase(tmp_path / "study_index.db")
+    module = module_database.add_module("Mathematics")
+    assert module is not None
+    first_folder = module_database.add_linked_folder(module.id, "C:/College/Mathematics")
+    second_folder = module_database.add_linked_folder(module.id, "C:/College/Notes")
+    assert first_folder is not None
+    assert second_folder is not None
+    assert module_database.relocate_linked_folder(first_folder.id, "C:/College/Maths")
+    assert not module_database.relocate_linked_folder(first_folder.id, second_folder.path)
+    assert not module_database.relocate_linked_folder(999, "C:/Missing")
+    assert module_database.get_linked_folders(module.id) == [
+        LinkedFolder(first_folder.id, module.id, "C:/College/Maths"),
+        second_folder
+    ]
+    module_database.close()
+
+
 def test_modules_and_folders_are_sorted_case_insensitively(tmp_path: Path) -> None:
     module_database = ModuleDatabase(tmp_path / "study_index.db")
     zebra_module = module_database.add_module("zebra")

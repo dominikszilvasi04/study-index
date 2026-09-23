@@ -25,3 +25,17 @@ def test_workspace_loads_and_refreshes_linked_folder_files(
     with qtbot.waitSignal(page.module_list_requested):
         page.back_button.click()
     database.close()
+
+
+def test_workspace_displays_folder_scan_errors(tmp_path: Path, qtbot: QtBot) -> None:
+    database = ModuleDatabase(tmp_path / "study_index.db")
+    module = database.add_module("Mathematics")
+    assert module is not None
+    missing_directory = tmp_path / "Missing"
+    database.add_linked_folder(module.id, str(missing_directory))
+    page = ModuleWorkspacePage(module, database)
+    qtbot.addWidget(page)
+    assert page.scan_errors_label.isVisibleTo(page)
+    assert str(missing_directory) in page.scan_errors_label.text()
+    assert "is not a directory" in page.scan_errors_label.text()
+    database.close()

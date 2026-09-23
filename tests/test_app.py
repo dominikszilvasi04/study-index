@@ -41,10 +41,13 @@ class FakeDatabase:
 
 
 class FakeWindow:
-    created_database = None
+    created_module_database = None
+    created_event_database = None
 
-    def __init__(self, database: FakeDatabase) -> None:
-        FakeWindow.created_database = database
+    def __init__(self, module_database: FakeDatabase,
+                 event_database: FakeDatabase) -> None:
+        FakeWindow.created_module_database = module_database
+        FakeWindow.created_event_database = event_database
         self.was_shown = False
 
     def show(self) -> None:
@@ -56,11 +59,13 @@ def test_main_composes_and_runs_application(tmp_path: Path,
     data_path = tmp_path / "Data" / "study_index.db"
     monkeypatch.setattr(app, "QApplication", FakeApplication)
     monkeypatch.setattr(app, "ModuleDatabase", FakeDatabase)
+    monkeypatch.setattr(app, "EventDatabase", FakeDatabase)
     monkeypatch.setattr(app, "StudyIndexWindow", FakeWindow)
     monkeypatch.setattr(app, "database_path", lambda: data_path)
     assert app.main() == 17
     assert data_path.parent.is_dir()
     assert FakeDatabase.created_path == data_path
-    assert isinstance(FakeWindow.created_database, FakeDatabase)
+    assert isinstance(FakeWindow.created_module_database, FakeDatabase)
+    assert isinstance(FakeWindow.created_event_database, FakeDatabase)
     assert FakeApplication.created_stylesheet is not None
     assert "#navigationSidebar" in FakeApplication.created_stylesheet

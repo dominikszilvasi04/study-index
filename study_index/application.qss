@@ -46,14 +46,14 @@ QToolTip { padding: 6px 8px; color: #ffffff; background-color: #2c3229; border: 
 #folderActionBar { border-top: 1px solid #e2ded1; }
 #linkedFolderPanel QListWidget, #filesPanel QTreeWidget { border: none; border-top: 1px solid #e2ded1; border-radius: 0; }
 #scanErrorsLabel { padding: 10px 14px; color: #8a443e; background-color: #faece9; border-top: 1px solid #efd5d0; }
-#moduleListPage { background-color: #f6f5ef; }
+#moduleListPage, #eventListPage { background-color: #f6f5ef; }
 #pageTitle { color: #2c3229; font-size: 28px; font-weight: bold; }
 #pageDescription { color: #747b6e; }
-#moduleEmptyMessage { padding: 40px; color: #8a9084; qproperty-alignment: AlignCenter; }
-#modulesList { padding: 8px; background-color: #fffefa; border: 1px solid #e2ded1; border-radius: 12px; }
-#modulesList::item { min-height: 58px; padding: 8px 12px; margin: 2px 0; border-radius: 8px; }
-#modulesList::item:hover { background-color: #edf4ed; }
-#modulesList::item:selected { color: #326847; background-color: #e1eee4; }
+#moduleEmptyMessage, #eventEmptyMessage { padding: 40px; color: #8a9084; qproperty-alignment: AlignCenter; }
+#modulesList, #eventsList { padding: 8px; background-color: #fffefa; border: 1px solid #e2ded1; border-radius: 12px; }
+#modulesList::item, #eventsList::item { min-height: 58px; padding: 8px 12px; margin: 2px 0; border-radius: 8px; }
+#modulesList::item:hover, #eventsList::item:hover { background-color: #edf4ed; }
+#modulesList::item:selected, #eventsList::item:selected { color: #326847; background-color: #e1eee4; }
 #moduleDetailsForm { background-color: #f6f5ef; }
 #dialogTitle { color: #2c3229; font-size: 22px; font-weight: bold; }
 #dialogDescription { color: #747b6e; padding-bottom: 4px; }

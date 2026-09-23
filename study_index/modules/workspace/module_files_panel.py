@@ -15,8 +15,7 @@ class ModuleFilesPanel(QFrame):
     files_table: ModuleFilesTable
     scan_errors_label: QLabel
 
-    def __init__(self, module: Module,
-                 module_database: ModuleDatabase) -> None:
+    def __init__(self, module: Module, module_database: ModuleDatabase) -> None:
         super().__init__()
         self.setObjectName("filesPanel")
         self.module = module

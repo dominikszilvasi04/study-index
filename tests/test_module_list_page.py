@@ -54,10 +54,10 @@ def test_add_and_edit_module(tmp_path: Path, qtbot: QtBot,
 
     monkeypatch.setattr(ModuleDetailsForm, "exec", complete_form)
     page.add_module()
-    assert page.modules_list.item(0).text() == "Mathematics (MATH101) — Semester 1"
+    assert page.modules_list.item(0).text() == "Mathematics\nMATH101 · Semester 1"
     page.modules_list.setCurrentRow(0)
     page.edit_module()
-    assert page.modules_list.item(0).text() == "Physics (PHY101) — Semester 2"
+    assert page.modules_list.item(0).text() == "Physics\nPHY101 · Semester 2"
     saved_module = database.get_modules()[0]
     assert (saved_module.name, saved_module.code, saved_module.term) == ("Physics", "PHY101", "Semester 2")
     with qtbot.waitSignal(page.module_open_requested) as signal:
@@ -145,4 +145,29 @@ def test_cancelled_add_and_edit_leave_modules_unchanged(
     page.edit_module()
     assert page.modules_list.count() == 1
     assert page.modules_list.item(0).text() == "Mathematics"
+    database.close()
+
+def test_module_search_filters_name_code_and_term(
+        tmp_path: Path, qtbot: QtBot) -> None:
+    database = ModuleDatabase(tmp_path / "study_index.db")
+    database.add_module("Mathematics", "MATH101", "Semester 1")
+    database.add_module("Physics", "PHY101", "Semester 2")
+    page = ModuleListPage(database)
+    qtbot.addWidget(page)
+
+    page.search_input.setText("math101")
+    assert not page.modules_list.item(0).isHidden()
+    assert page.modules_list.item(1).isHidden()
+
+    page.search_input.setText("semester 2")
+    assert page.modules_list.item(0).isHidden()
+    assert not page.modules_list.item(1).isHidden()
+
+    page.search_input.setText("missing")
+    assert page.empty_message.isVisibleTo(page)
+    assert page.empty_message.text() == "No modules match your search."
+
+    page.search_input.clear()
+    assert page.modules_list.isVisibleTo(page)
+    assert not page.empty_message.isVisibleTo(page)
     database.close()

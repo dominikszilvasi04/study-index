@@ -88,6 +88,7 @@ class ModuleListPage(QWidget):
         self.delete_module_button.clicked.connect(self.delete_module)
         self.modules_list.currentItemChanged.connect(self.module_selection_changed)
         self.modules_list.itemActivated.connect(self.module_item_activated)
+        self.search_input.textChanged.connect(self.filter_modules)
 
     def load_modules(self) -> None:
         for module in self.module_database.get_modules():
@@ -104,10 +105,11 @@ class ModuleListPage(QWidget):
             QMessageBox.warning(self, "Warning", "Module name already exists")
             return
         self.add_module_item(module)
-        self.update_empty_state()
+        self.filter_modules(self.search_input.text())
 
     def edit_module(self) -> None:
         item = self.selected_module_item()
+        self.filter_modules(self.search_input.text())
         module = item.data(Qt.ItemDataRole.UserRole)
         details = self.request_module_details("Edit Module", module)
         if details is None:
@@ -127,7 +129,7 @@ class ModuleListPage(QWidget):
         if not self.module_database.delete_module(module.id):
             return
         self.modules_list.takeItem(self.modules_list.row(item))
-        self.update_empty_state()
+        self.filter_modules(self.search_input.text())
 
     def module_selection_changed(self,
                                  current_item: QListWidgetItem | None) -> None:
@@ -145,6 +147,16 @@ class ModuleListPage(QWidget):
         module = item.data(Qt.ItemDataRole.UserRole)
         self.module_open_requested.emit(module)
 
+    def filter_modules(self, search_text: str) -> None:
+        normalised_search = search_text.strip().casefold()
+        for row_number in range(self.modules_list.count()):
+            item = self.modules_list.item(row_number)
+            module = item.data(Qt.ItemDataRole.UserRole)
+            searchable_text = " ".join((module.name, module.code, module.term)).casefold()
+            item.setHidden(normalised_search not in searchable_text)
+        self.update_empty_state()
+
+
     # ------------------------------ Utilities ------------------------------
 
     def add_module_item(self, module: Module) -> None:
@@ -155,17 +167,35 @@ class ModuleListPage(QWidget):
     @staticmethod
     def update_module_item(item: QListWidgetItem, module: Module) -> None:
         description = module.name
-        if module.code:
-            description += f" ({module.code})"
-        if module.term:
-            description += f" — {module.term}"
+        module_details = " · ".join(value for value in (module.code, module.term) if value)
+        if module_details:
+            description += f"\n{module_details}"
         item.setText(description)
         item.setData(Qt.ItemDataRole.UserRole, module)
 
     def update_empty_state(self) -> None:
-        modules_available = self.modules_list.count() > 0
-        self.modules_list.setVisible(modules_available)
-        self.empty_message.setVisible(not modules_available)
+        if self.modules_list.count() == 0:
+            self.show_empty_message("No modules yet\nAdd your first module to get started.")
+            return
+        if self.has_visible_modules():
+            self.show_module_list()
+            return
+        self.show_empty_message("No modules match your search.")
+
+    def has_visible_modules(self) -> bool:
+        for row_number in range(self.modules_list.count()):
+            if not self.modules_list.item(row_number).isHidden():
+                return True
+        return False
+
+    def show_module_list(self) -> None:
+        self.modules_list.show()
+        self.empty_message.hide()
+
+    def show_empty_message(self, message: str) -> None:
+        self.empty_message.setText(message)
+        self.modules_list.hide()
+        self.empty_message.show()
 
     def selected_module_item(self) -> QListWidgetItem:
         item = self.modules_list.currentItem()

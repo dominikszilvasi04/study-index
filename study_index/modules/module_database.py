@@ -6,6 +6,7 @@ from study_index.modules.models import LinkedFolder, Module
 class ModuleDatabase:
     def __init__(self, database_path: Path) -> None:
         self.connection: sqlite3.Connection = sqlite3.connect(database_path)
+        self.connection.row_factory = sqlite3.Row
         self.connection.execute("PRAGMA foreign_keys = ON")
         self.connection.execute("CREATE TABLE IF NOT EXISTS modules (id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, code TEXT NOT NULL DEFAULT '', term TEXT NOT NULL DEFAULT '')")
         self.connection.execute("CREATE TABLE IF NOT EXISTS linked_folders (id INTEGER PRIMARY KEY, module_id INTEGER NOT NULL, path TEXT NOT NULL, UNIQUE(module_id, path), FOREIGN KEY(module_id) REFERENCES modules(id) ON DELETE CASCADE)")
@@ -18,11 +19,11 @@ class ModuleDatabase:
         module_id = insert_result.lastrowid
         if module_id is None:
             raise RuntimeError("SQLite did not return an ID for the new module")
-        return Module(module_id, name, code, term)
+        return Module(id=module_id, name=name, code=code, term=term)
 
     def get_modules(self) -> list[Module]:
         rows = self.connection.execute("SELECT id, name, code, term FROM modules ORDER BY name COLLATE NOCASE")
-        return [Module(row[0], row[1], row[2], row[3]) for row in rows]
+        return [self.module_from_row(row) for row in rows]
 
     def update_module(self, module_id: int, name: str, code: str, term: str) -> bool:
         update_result = self.connection.execute(
@@ -49,11 +50,11 @@ class ModuleDatabase:
         linked_folder_id = insert_result.lastrowid
         if linked_folder_id is None:
             raise RuntimeError("SQLite did not return an ID for the new linked folder")
-        return LinkedFolder(linked_folder_id, module_id, path)
+        return LinkedFolder(id=linked_folder_id, module_id=module_id, path=path)
 
     def get_linked_folders(self, module_id: int) -> list[LinkedFolder]:
         rows = self.connection.execute("SELECT id, module_id, path FROM linked_folders WHERE module_id = ? ORDER BY path COLLATE NOCASE", (module_id,))
-        return [LinkedFolder(row[0], row[1], row[2]) for row in rows]
+        return [self.linked_folder_from_row(row) for row in rows]
 
     def relocate_linked_folder(self, linked_folder_id: int, path: str) -> bool:
         update_result = self.connection.execute("UPDATE OR IGNORE linked_folders SET path = ? WHERE id = ?",
@@ -68,3 +69,13 @@ class ModuleDatabase:
 
     def close(self) -> None:
         self.connection.close()
+
+    # ------------------------------ Utilities ------------------------------
+
+    @staticmethod
+    def module_from_row(row: sqlite3.Row) -> Module:
+        return Module(id=row["id"], name=row["name"], code=row["code"], term=row["term"])
+
+    @staticmethod
+    def linked_folder_from_row(row: sqlite3.Row) -> LinkedFolder:
+        return LinkedFolder(id=row["id"], module_id=row["module_id"], path=row["path"])

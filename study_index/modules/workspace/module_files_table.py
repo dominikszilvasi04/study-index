@@ -7,6 +7,11 @@ from study_index.modules.models import FileMetadata
 from study_index.path_actions import copy_path, open_path
 
 
+# Qt numbers columns from zero: Name is first, Type is second.
+FILE_NAME_COLUMN = 0
+FILE_TYPE_COLUMN = 1
+
+
 class ModuleFilesTable(QTreeWidget):
     def __init__(self) -> None:
         super().__init__()
@@ -29,12 +34,20 @@ class ModuleFilesTable(QTreeWidget):
         file_path = item.data(0, Qt.ItemDataRole.UserRole)
         open_path(self, file_path)
 
-    def filter_files(self, search_text: str) -> None:
+    def filter_files(self, search_text: str, selected_extensions: tuple[str, ...] | None = None) -> None:
         search_text = search_text.strip().casefold()
-        for row in range(self.topLevelItemCount()):
-            item = self.topLevelItem(row)
-            file_name = item.text(0).casefold()
-            item.setHidden(search_text not in file_name)
+        for row_number in range(self.topLevelItemCount()):
+            file_row = self.topLevelItem(row_number)
+            file_name = file_row.text(FILE_NAME_COLUMN)
+            file_extension = file_row.text(FILE_TYPE_COLUMN)
+
+            name_matches = search_text in file_name.casefold()
+            type_matches = True
+            if selected_extensions is not None:
+                type_matches = file_extension in selected_extensions
+
+            show_file = name_matches and type_matches
+            file_row.setHidden(not show_file)
 
     def show_context_menu(self, position: QPoint) -> None:
         item = self.itemAt(position)

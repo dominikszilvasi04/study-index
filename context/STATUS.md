@@ -39,4 +39,6 @@ Last updated: 22 September 2026
 - Folder scan errors are displayed without preventing other linked folders from loading, and Locate Folder reconnects moved roots.
 - Files and linked folders support activation and context menus. Shared opening and clipboard behaviour lives in `study_index/path_actions.py`; widgets retain their own menu and selection logic.
 - Flake8 and all 26 existing tests pass with coverage disabled after these changes. New interactions have not yet been covered by automated tests; the 100% coverage gate has not been verified for this work.
-- Next: manually check linked-folder activation and its Open Folder / Copy Path menu, then continue with filename search, type filtering and sorting. Background scanning and persisted file indexes are deferred at the owner's request.
+- Filename search and a fixed file-type dropdown filter together: All file types, PDF, Word (.doc/.docx), PowerPoint (.ppt/.pptx), and Text (.txt). Refresh leaves the selection unchanged. Other types and files without extensions remain visible under All file types. Dynamic type discovery and dropdown rebuilding were removed at the owner's request for simpler code.
+- Filtering uses named filename/type column constants and descriptive intermediate variables for readability.
+- Next: manually verify combined filtering and refresh, then add column sorting. Background scanning and persisted file indexes are deferred at the owner's request.

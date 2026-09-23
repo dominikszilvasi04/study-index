@@ -34,6 +34,7 @@ module_name, accepted = QInputDialog.getText(self,
 - Avoid speculative abstractions, unnecessary dependencies and boilerplate.
 - Optimise for readable top-to-bottom flow.
 - Prefer two clear lines over one compressed line when that improves readability.
+- Use descriptive intermediate variables and named column constants so table code explains which data it reads. Prefer straightforward conditions over compact expressions when teaching or extending the UI.
 - Fail loudly. Do not swallow exceptions, hide invalid state or add silent fallbacks unless explicitly required.
 - Apply Ponytail's minimal-code approach to source code and code structure only.
 
